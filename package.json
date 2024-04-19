@@ -1,0 +1,25 @@
+{
+	"name": "space.sync",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"dev": "tsx watch ./server.ts"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@fastify/cookie": "^9.3.1",
+		"@fastify/jwt": "^8.0.0",
+		"bcryptjs": "^2.4.3",
+		"dotenv": "^16.4.5",
+		"fastify": "^4.26.2",
+		"luxon": "^3.4.4",
+		"zod": "^3.22.5"
+	},
+	"devDependencies": {
+		"tsx": "^4.7.2",
+		"typescript": "^5.4.5"
+	}
+}
