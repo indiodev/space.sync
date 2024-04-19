@@ -1,12 +1,12 @@
-version: "3"
+version: '3'
 
 services:
-  emanagerdb:
+  database:
     env_file: .env
     image: bitnami/postgresql
     ports:
-      - ${POSTGRESQL_PORT}:5432
+      - ${DB_PORT}:5432
     environment:
-      - POSTGRESQL_USERNAME=${POSTGRESQL_USERNAME}
-      - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
-      - POSTGRESQL_DATABASE=${POSTGRESQL_DATABASE}
+      - POSTGRESQL_USERNAME=${DB_USERNAME}
+      - POSTGRESQL_PASSWORD=${DB_PASSWORD}
+      - POSTGRESQL_DATABASE=${DB_DATABASE}

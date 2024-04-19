@@ -2,7 +2,7 @@
 import { createServer } from 'http';
 // import { join } from 'path';
 import { Server } from 'socket.io';
-import { APP } from './src/app';
+import { APP } from './app';
 
 // APP.register(Static, {
 // 	root: join(__dirname, 'public'),
