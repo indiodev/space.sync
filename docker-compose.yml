@@ -6,7 +6,15 @@ services:
     image: bitnami/postgresql
     ports:
       - ${DB_PORT}:5432
+    expose:
+      - 5432
+    volumes:
+      - storage_db:/var/lib/postgres/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
-      - POSTGRESQL_USERNAME=${DB_USERNAME}
-      - POSTGRESQL_PASSWORD=${DB_PASSWORD}
-      - POSTGRESQL_DATABASE=${DB_DATABASE}
+      POSTGRESQL_USERNAME: ${DB_USERNAME}
+      POSTGRESQL_PASSWORD: ${DB_PASSWORD}
+      POSTGRESQL_DATABASE: ${DB_DATABASE}
+
+volumes:
+  storage_db:
