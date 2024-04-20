@@ -17,16 +17,18 @@
 		"bcryptjs": "^2.4.3",
 		"dotenv": "^16.4.5",
 		"fastify": "^4.26.2",
+		"fastify-socket.io": "^5.0.0",
 		"luxon": "^3.4.4",
 		"pg-promise": "^11.6.0",
+		"pino-pretty": "^11.0.0",
 		"socket.io": "^4.7.5",
 		"venom-bot": "^5.1.0",
 		"zod": "^3.22.5"
 	},
 	"devDependencies": {
 		"ts-node": "^10.9.2",
-		"tsx": "^4.7.2",
 		"tsup": "^8.0.2",
+		"tsx": "^4.7.2",
 		"typescript": "^5.4.5"
 	}
 }
