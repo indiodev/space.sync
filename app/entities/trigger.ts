@@ -6,9 +6,9 @@ export type Trigger = {
 	name: string;
 	scheduling: string;
 	delay: number;
-	copyright: number;
+	copyright: string;
 	created_at: string;
 	updated_at: string;
-	groups: Group[] | null;
-	images: Image[] | null;
+	groups: Group[];
+	images: Image[];
 };

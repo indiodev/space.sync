@@ -1,66 +1,97 @@
-import Static from '@fastify/static';
-import { TriggerRoute } from 'app/routes/trigger';
+import { APP } from 'app';
+import { ChatGroup } from 'app/dtos/venom';
+import { TriggerFactory } from 'app/factories/trigger';
+import { Schema } from 'app/schemas';
+import { CreateVenomInstance } from 'app/utils/socket';
+import { VenomStatus } from 'app/utils/venom';
 import { Env } from 'config/env';
-import Socket from 'fastify-socket.io';
-import { join } from 'path';
-import { Server } from 'socket.io';
-import { CreateOptions, create as CreateVenom, Whatsapp } from 'venom-bot';
-import { APP } from './app';
+import { Socket } from 'socket.io';
+import { Whatsapp as Venom } from 'venom-bot';
 
-let whatsapp: Whatsapp | null = null;
+let venom: Venom | null = null;
+let socket: Socket | null = null;
 
-APP.register(Static, {
-	root: join(__dirname, 'public'),
-	prefix: '/public/',
-});
+APP.get('/venom/groups', async (_, response) => {
+	if (!venom)
+		return response.status(400).send({
+			message: 'Venom not initialized',
+		});
 
-APP.register(Socket, {
-	cors: {
-		origin: '*',
-	},
-});
-
-type VenomCreateOptions = CreateOptions & { multidevice?: boolean };
-APP.register(TriggerRoute, { prefix: '/trigger' });
-
-APP.get('/groups', async (request, response) => {
-	if (!whatsapp || !whatsapp.isConnected()) {
-		return response.status(404).send({ message: 'Whatsapp not connected' });
-	}
-
-	const all_groups = (await whatsapp.getAllChatsGroups()) as {
-		name: string;
-		id: { _serialized: string };
-	}[];
-	const groups = all_groups.map(({ name, id: { _serialized } }) => ({
+	const groups = (await venom?.getAllChatsGroups()) as ChatGroup[];
+	const result = groups?.map(({ name, id: { _serialized } }) => ({
 		name,
 		serialized_identifier: _serialized,
 	}));
-	return response.status(200).send(groups);
+	return response.status(200).send(result);
 });
 
-APP.get('/', async (request, response) => {
-	return response.sendFile('index.html');
+APP.post('/trigger', async (request, response) => {
+	if (!venom)
+		return response.status(400).send({
+			message: 'Venom not initialized',
+		});
+
+	const payload = Schema.Trigger.parse(request.body);
+
+	const factory = TriggerFactory();
+
+	const result = await factory.create(payload);
+
+	if (!result.scheduling) {
+		const { images, groups, ...trigger } = result;
+
+		const messages = groups.map(async ({ serialized_identifier }, index) => {
+			return new Promise((resolve, reject) => {
+				try {
+					setTimeout(async () => {
+						await venom?.sendText(serialized_identifier, trigger.copyright);
+						for (const image of images) {
+							await venom?.sendImage(serialized_identifier, image.url, '', '');
+						}
+						resolve({
+							name: trigger.name,
+							status: 'success',
+							message: 'Enviado com sucesso',
+						});
+					}, 15 * 1000 * (index + 1));
+				} catch (error) {
+					reject({
+						name: trigger.name,
+						status: 'error',
+						message: 'Erro ao enviar',
+					});
+				}
+			});
+		});
+
+		Promise.all(messages).then(() => {});
+	}
+
+	return response.status(200).send(result);
 });
 
 APP.ready((err) => {
 	if (err) throw err;
 
-	APP.io.on('connection', (socket) => {
-		console.info('Socket connected!', socket.id);
+	APP.io.on('connection', async (so) => {
+		console.info('Socket connected!', so.id);
+		socket = so;
 
-		socket.emit('message', 'Hello World!');
+		if (venom) {
+			so.emit('venom_status', {
+				message: VenomStatus.isLogged,
+				status: 'isLogged',
+			});
+			venom.initialize();
+			venom.reload();
+		}
 
-		socket.on('generate qrcode', async () => {
-			whatsapp = await CreateVenom({
-				session: 'space_sync',
-				logQR: true,
-				multidevice: false,
-			} as VenomCreateOptions);
+		socket.on('create_venom', async () => {
+			venom = await CreateVenomInstance(so);
 		});
 
 		socket.on('disconnect', () => {
-			console.info('Socket disconnected!', socket.id);
+			console.info('Socket disconnected!', so.id);
 		});
 	});
 });
@@ -71,9 +102,3 @@ APP.listen({
 }).then(async () => {
 	console.log(`Server is running on http://localhost:${Env.APP_PORT}`);
 });
-
-declare module 'fastify' {
-	export interface FastifyInstance {
-		io: Server;
-	}
-}

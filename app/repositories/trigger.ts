@@ -3,6 +3,7 @@ import { Group } from 'app/entities/group';
 import { Image } from 'app/entities/image';
 import { Trigger } from 'app/entities/trigger';
 import { IDatabase } from 'pg-promise';
+// import { IClient } from 'pg-promise/typescript/pg-subset';
 
 export class TriggerRepository {
 	constructor(private db: IDatabase<{}>) {}
