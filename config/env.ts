@@ -13,6 +13,11 @@ const Schema = z.object({
 	DB_PASSWORD: z.string(),
 	DB_DATABASE: z.string(),
 	DB_PORT: z.coerce.number().default(5432),
+
+	STORAGE_ACCESS_KEY_ID: z.string(),
+	STORAGE_SECRET_ACCESS_KEY: z.string(),
+	STORAGE_DEFAULT_REGION: z.string(),
+	STORAGE_BUCKET_NAME: z.string(),
 });
 
 const parse = Schema.safeParse(process.env);
