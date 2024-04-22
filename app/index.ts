@@ -4,8 +4,11 @@ import Socket from 'fastify-socket.io';
 import { join } from 'path';
 import { Server } from 'socket.io';
 import { ZodError } from 'zod';
+import { TriggerRoute } from './routes/trigger';
+import { VenomRoute } from './routes/venom';
 import { Schema } from './schemas';
 import storage from './services/storage';
+
 const APP = fastify();
 
 APP.register(Static, {
@@ -18,6 +21,9 @@ APP.register(Socket, {
 		origin: '*',
 	},
 });
+
+APP.register(VenomRoute, { prefix: '/venom' });
+APP.register(TriggerRoute, { prefix: '/trigger' });
 
 APP.post('/storage/presigned', async (request, response) => {
 	try {
