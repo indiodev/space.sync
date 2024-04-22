@@ -18,13 +18,17 @@ document.addEventListener('DOMContentLoaded', function () {
 		if (venom_status === 'online') {
 			toggle.checked = true;
 			img.src = '/public/logo.png';
+			qrcode_container.setAttribute('data-qrcode', 'no-generated');
+		}
+
+		if (status === 'notLogged') {
+			qrcode_container.setAttribute('data-qrcode', 'generated');
 		}
 
 		status.textContent = `${message}`;
 	});
 
 	socket.on('qrcode', function ({ qrCode }) {
-		console.log({ qrCode });
 		const img = document.querySelector('img');
 		img.src = qrCode;
 	});
