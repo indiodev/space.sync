@@ -2,10 +2,7 @@ import { TriggerFactory } from 'app/factories/trigger';
 import { SendToGroupPromise } from 'app/helpers/venom';
 import { Schema } from 'app/schemas';
 import { Venom } from 'app/services/venom';
-import { Env } from 'config/env';
 import { FastifyReply, FastifyRequest } from 'fastify';
-
-import req from 'request';
 
 class TriggerController {
 	constructor() {}
@@ -24,22 +21,20 @@ class TriggerController {
 
 		const result = await factory.create(payload);
 
-		if (!result.scheduling_date) {
-			req({
-				url: `${Env.APP_HOST}/trigger/${result.id}/send-to-groups`,
-				method: 'POST',
-			})
-				.on('response', (res) =>
-					console.log("Response's status code: ", res.statusCode),
-				)
-				.on('error', (error) => console.error('Error: ', error));
-		}
+		if (!payload.scheduling_date) factory.sendToGroups(result.id);
+
+		if (payload.scheduling_date)
+			factory.createJob({
+				id: result.id,
+				scheduling_date: payload.scheduling_date,
+			});
 
 		return response.status(200).send(result);
 	}
 
 	async sendToGroups(request: FastifyRequest, response: FastifyReply) {
-		const { id } = request.params as { id: number };
+		const { id } = Schema.Trigger.Update.parse(request.params);
+
 		const venom = Venom.getInstance();
 
 		if (!venom.isConnected)
@@ -56,6 +51,11 @@ class TriggerController {
 				message: 'Trigger not found',
 			});
 		}
+
+		// if (!(trigger.status === 'pending'))
+		// 	return response.status(400).send({
+		// 		message: 'Trigger not pending',
+		// 	});
 
 		await factory.update({ id, status: 'sending' });
 

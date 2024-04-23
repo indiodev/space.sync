@@ -1,3 +1,4 @@
+import Schedule from '@fastify/schedule';
 import Static from '@fastify/static';
 import fastify from 'fastify';
 import Socket from 'fastify-socket.io';
@@ -7,6 +8,7 @@ import { ZodError } from 'zod';
 import { TriggerRoute } from './routes/trigger';
 import { VenomRoute } from './routes/venom';
 import { Schema } from './schemas';
+
 import storage from './services/storage';
 
 const APP = fastify();
@@ -21,6 +23,8 @@ APP.register(Socket, {
 		origin: '*',
 	},
 });
+
+APP.register(Schedule);
 
 APP.register(VenomRoute, { prefix: '/venom' });
 APP.register(TriggerRoute, { prefix: '/trigger' });
