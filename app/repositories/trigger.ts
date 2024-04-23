@@ -3,7 +3,6 @@ import { Group } from 'app/entities/group';
 import { Image } from 'app/entities/image';
 import { Trigger } from 'app/entities/trigger';
 import { IDatabase } from 'pg-promise';
-// import { IClient } from 'pg-promise/typescript/pg-subset';
 
 export class TriggerRepository {
 	constructor(private db: IDatabase<{}>) {}
@@ -45,5 +44,27 @@ export class TriggerRepository {
 		});
 
 		return tx;
+	}
+
+	async findBy({ op, ...payload }: any) {
+		return await this.db.oneOrNone<Trigger>(/*sql*/ `
+			SELECT t.*, 
+			(
+				SELECT json_agg(json_build_object('url', i.url, 'trigger_id', i.trigger_id))
+        FROM images i
+        WHERE i.trigger_id = t.id
+			) AS images, 
+			(
+				SELECT json_agg(json_build_object('serialized_identifier', g.serialized_identifier, 'trigger_id', g.trigger_id))
+				FROM groups g
+				WHERE g.trigger_id = t.id
+			) as groups
+			FROM triggers t
+			LEFT JOIN groups g ON t.id = g.trigger_id
+			WHERE ${Object.keys(payload)
+				.map((key) => `t.${key} = '${payload[key]}'`)
+				.join(` ${op} `)}
+			GROUP BY t.id
+		`);
 	}
 }

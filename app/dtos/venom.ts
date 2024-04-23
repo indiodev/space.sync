@@ -1,3 +1,5 @@
+import { Image } from 'app/entities/image';
+
 export type ChatGroup = {
 	name: string;
 	id: { _serialized: string };
@@ -18,4 +20,10 @@ export type VenomSendImage = {
 	filename?: string;
 	caption?: string;
 	passId?: any;
+};
+
+export type VenomSendToGroup = {
+	copyright: string;
+	serialized_identifier: string;
+	images: Image[];
 };

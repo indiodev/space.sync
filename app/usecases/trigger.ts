@@ -6,4 +6,8 @@ export class TriggerUseCase {
 	async create(payload: CreateTrigger) {
 		return this.repository.create(payload);
 	}
+
+	async findBy(payload: any) {
+		return this.repository.findBy(payload);
+	}
 }

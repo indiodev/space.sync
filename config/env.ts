@@ -7,6 +7,7 @@ const Schema = z.object({
 	JWT_SECRET: z.string(),
 
 	APP_PORT: z.coerce.number().default(3333),
+	APP_HOST: z.string(),
 
 	DB_HOST: z.string(),
 	DB_USERNAME: z.string(),

@@ -2,7 +2,8 @@ import { Socket as SocketBase } from 'socket.io';
 
 export class Socket {
 	private static instance: Socket | null = null;
-	private io: SocketBase | null = null;
+	public io: SocketBase | null = null;
+	public isConnected = false;
 
 	constructor() {}
 
@@ -12,17 +13,9 @@ export class Socket {
 		return Socket.instance;
 	}
 
-	isInitialized() {
-		return this.io !== null;
-	}
-
 	public init(socket: SocketBase) {
 		this.io = socket;
+		this.isConnected = true;
 		return this;
-	}
-
-	event(): SocketBase {
-		if (!this.isInitialized()) throw new Error('Socket not initialized');
-		return this.io!;
 	}
 }

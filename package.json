@@ -23,11 +23,13 @@
 		"luxon": "^3.4.4",
 		"pg-promise": "^11.6.0",
 		"pino-pretty": "^11.0.0",
+		"request": "^2.88.2",
 		"socket.io": "^4.7.5",
 		"venom-bot": "^5.1.0",
 		"zod": "^3.22.5"
 	},
 	"devDependencies": {
+		"@types/request": "^2.48.12",
 		"ts-node": "^10.9.2",
 		"tsup": "^8.0.2",
 		"tsx": "^4.7.2",

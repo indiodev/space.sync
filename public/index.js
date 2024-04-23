@@ -4,24 +4,22 @@ document.addEventListener('DOMContentLoaded', function () {
 	const img = document.querySelector('img');
 	const status = document.getElementById('status');
 	const toggle = document.getElementById('toggle');
+	const qrcode_container = document.getElementById('qrcode_container');
 
 	toggle.addEventListener('click', function () {
 		toggle.checked = false;
-
-		axios
-			.post('/venom/new-instance/generate-qr-code')
-			.then(console.log)
-			.catch(console.log);
+		socket.emit('create_venom_instance', () => {});
 	});
 
 	socket.on('venom_status', ({ message, status: venom_status }) => {
-		if (venom_status === 'online') {
+		console.log(venom_status, message);
+		if (venom_status === 'online' || venom_status === 'successChat') {
 			toggle.checked = true;
-			img.src = '/public/logo.png';
+			img.src = '/public/logo.jpg';
 			qrcode_container.setAttribute('data-qrcode', 'no-generated');
 		}
 
-		if (status === 'notLogged') {
+		if (venom_status === 'notLogged') {
 			qrcode_container.setAttribute('data-qrcode', 'generated');
 		}
 
