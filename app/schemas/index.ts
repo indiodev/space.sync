@@ -1,8 +1,11 @@
 import { Presigned, Remove } from './storage';
-import { Trigger } from './trigger';
+import { CreateTrigger, UpdateTrigger } from './trigger';
 
 export const Schema = {
-	Trigger,
+	Trigger: {
+		Create: CreateTrigger,
+		Update: UpdateTrigger,
+	},
 	Storage: {
 		Presigned,
 		Remove,

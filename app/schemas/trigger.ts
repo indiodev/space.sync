@@ -1,10 +1,19 @@
 import { z } from 'zod';
 
-export const Trigger = z.object({
+export const CreateTrigger = z.object({
 	name: z.string(),
-	scheduling: z.string().nullable(),
+	scheduling_date: z.string().nullable(),
 	delay: z.number(),
 	copyright: z.string(),
 	images: z.array(z.string()),
 	groups: z.array(z.string()),
+});
+
+export const UpdateTrigger = z.object({
+	id: z.number(),
+	name: z.string().optional(),
+	status: z.enum(['pending', 'success', 'failed', 'sending']).optional(),
+	scheduling_date: z.string().nullable().optional(),
+	delay: z.number().optional(),
+	copyright: z.string().optional(),
 });

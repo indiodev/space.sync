@@ -1,4 +1,4 @@
-import { CreateTrigger } from 'app/dtos/trigger';
+import { CreateTrigger, FindTrigger, UpdateTrigger } from 'app/dtos/trigger';
 import { Group } from 'app/entities/group';
 import { Image } from 'app/entities/image';
 import { Trigger } from 'app/entities/trigger';
@@ -14,8 +14,13 @@ export class TriggerRepository {
 	}: CreateTrigger): Promise<Trigger> {
 		const tx = await this.db.tx(async (transaction) => {
 			const [created_trigger] = await transaction.query<Trigger[]>(
-				/*sql*/ `INSERT INTO triggers (name, scheduling, delay, copyright) VALUES ($1, $2, $3, $4) RETURNING *;`,
-				[trigger.name, trigger.scheduling, trigger.delay, trigger.copyright],
+				/*sql*/ `INSERT INTO triggers (name, scheduling_date, delay, copyright) VALUES ($1, $2, $3, $4) RETURNING *;`,
+				[
+					trigger.name,
+					trigger.scheduling_date,
+					trigger.delay,
+					trigger.copyright,
+				],
 			);
 
 			const image_values = images
@@ -46,7 +51,11 @@ export class TriggerRepository {
 		return tx;
 	}
 
-	async findBy({ op, ...payload }: any) {
+	async findBy({ op, ...payload }: FindTrigger) {
+		const WHERE_VALUES = Object.entries(payload)
+			.map(([key, value]) => `t.${key} = '${value}'`)
+			.join(` ${op} `);
+
 		return await this.db.oneOrNone<Trigger>(/*sql*/ `
 			SELECT t.*, 
 			(
@@ -61,10 +70,32 @@ export class TriggerRepository {
 			) as groups
 			FROM triggers t
 			LEFT JOIN groups g ON t.id = g.trigger_id
-			WHERE ${Object.keys(payload)
-				.map((key) => `t.${key} = '${payload[key]}'`)
-				.join(` ${op} `)}
+			WHERE ${WHERE_VALUES}
 			GROUP BY t.id
 		`);
+	}
+
+	async update({ id, ...payload }: UpdateTrigger) {
+		const tx = await this.db.tx(async (transaction) => {
+			const values = Object.values(payload);
+			const keys = Object.keys(payload);
+			const UPDATE_COLUMNS = keys
+				.map((key, index) => `${key} = $${index + 1}`)
+				.join(', ');
+			const WHERE_VALUES = `${UPDATE_COLUMNS} WHERE id = $${keys.length + 1}`;
+
+			const [updated_trigger] = await transaction.query<Trigger[]>(
+				/*sql*/ `UPDATE triggers SET ${WHERE_VALUES} RETURNING *;`,
+				[...values, id],
+			);
+
+			return updated_trigger;
+		});
+
+		return tx;
+	}
+
+	async list() {
+		return await this.db.manyOrNone<Trigger>(/*sql*/ `SELECT * FROM triggers;`);
 	}
 }
