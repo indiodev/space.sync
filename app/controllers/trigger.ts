@@ -52,10 +52,10 @@ class TriggerController {
 			});
 		}
 
-		// if (!(trigger.status === 'pending'))
-		// 	return response.status(400).send({
-		// 		message: 'Trigger not pending',
-		// 	});
+		if (!(trigger.status === 'pending'))
+			return response.status(400).send({
+				message: 'Trigger not pending',
+			});
 
 		await factory.update({ id, status: 'sending' });
 

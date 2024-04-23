@@ -10,7 +10,7 @@ export const CreateTrigger = z.object({
 });
 
 export const UpdateTrigger = z.object({
-	id: z.number(),
+	id: z.coerce.number(),
 	name: z.string().optional(),
 	status: z.enum(['pending', 'success', 'failed', 'sending']).optional(),
 	scheduling_date: z.string().nullable().optional(),
