@@ -82,7 +82,7 @@ class TriggerController {
 			});
 
 		return response.status(200).send({
-			message: 'Agendamento Enviado com sucesso',
+			message: 'Trigger sent to groups',
 		});
 	}
 
